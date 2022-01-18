@@ -17,6 +17,7 @@ void main() {
   });
 
   test('getPlatformVersion', () async {
+    // TODO
     // expect(await ZebraBluetooth.platformVersion, '42');
   });
 }

@@ -1,0 +1,78 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  plugins:
+    - dart_code_metrics
+
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "**/*.mocks.dart"
+    - "lib/generated/**"
+
+  language:
+    strict-inference: true
+    strict-raw-types: true
+
+  errors:
+    invalid_annotation_target: ignore # мешает freezed
+    unnecessary_getters_setters: ignore # мешает делать сеттеры и геттеры для приватных свойств
+
+linter:
+  rules:
+    always_use_package_imports: true # использовать полные импорты вместо сокращенных
+
+dart_code_metrics:
+  anti-patterns:
+    - long-method
+    - long-parameter-list
+  metrics:
+    cyclomatic-complexity: 20
+    maximum-nesting-level: 5
+    number-of-parameters: 10
+    source-lines-of-code: 50
+  metrics-exclude:
+    - test/**
+    - lib/generated/**
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "**/*.mocks.dart"
+  rules:
+    - always-remove-listener # всегда удалять слушатели
+    - avoid-global-state # все изменяемые глобальные переменные
+    #    - avoid-ignoring-return-values # игнорирование возвращаемых значений
+    #    - avoid-late-keyword # не должно быть late
+    - avoid-missing-enum-constant-in-map # предупреждать когда не все значения энума обработаны
+    - avoid-nested-conditional-expressions # ругаться на вложенные сокращенные условия
+    - avoid-non-null-assertion # ругаться на !
+    - avoid-returning-widgets # запрещать методы возвращающие Widget
+    #    - avoid-throw-in-catch-block # неиспользовать try catch
+    - avoid-unrelated-type-assertions # лишнее is
+    - avoid-unnecessary-setstate # ругаться на setState вызванную из initState, didUpdateWidget или build
+    - avoid-unused-parameters # ругаться на неиспользуемые параметры
+    - avoid-unnecessary-type-assertions # ругаться на is и whereType операторы когда они не нужны
+    - avoid-unnecessary-type-casts # ругаться на приведение типов когда оно не нужно
+    - avoid-wrapping-in-padding # ругатся на Padding виджет когда ребенок имеет поля паддинга
+    - binary-expression-operand-order # ругаться когда при математических операциях цифра идет перед переменной
+    - double-literal-format # ругатся на неполную запись double
+    #    - member-ordering # ругаться на сортировку параметров
+    - newline-before-return # перед ретурном должна стоять пустая строка
+    - no-boolean-literal-compare # ругаться на сравнение с true и false
+    - no-empty-block # ругаться на пустые {}
+    #    - no-equal-arguments # не должно быть одинаковых значений в аргументах
+    - no-equal-then-else # ругатьтся на одлинаковую логику в if else блоках
+    #    - no-magic-number # не должно быть магических цифр
+    - no-object-declaration # Нельзя возвращать Object
+    - prefer-conditional-expressions # использовать сокращенный if где это возможно!
+    - prefer-const-border-radius # использовать BorderRadius.all(Radius.circular(value))
+    - prefer-correct-identifier-length: # длинна переменных не менее 2 символов
+        exceptions: [ '_' ]
+        min-identifier-length: 2
+    - prefer-correct-type-name # использовать корректные имена классов
+    - prefer-extracting-callbacks # выносить обработчики в отдельные методы
+    - prefer-first # исплользоать list.first вместо list[0]
+    - prefer-last # использовать list.last вместо list[n]
+    #    - prefer-match-file-name # имена файлов должны совпадать с именем класса
+    #    - prefer-single-widget-per-file # один виджет на файл
+    - prefer-trailing-comma: # не забываем запятую после аргументов
+        break-on: 5
