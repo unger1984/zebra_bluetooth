@@ -12,8 +12,7 @@ class BluetoothDevice with _$BluetoothDevice {
     @Default(false) connected,
   }) = _BluetoothDevice;
 
-  factory BluetoothDevice.fromJson(Map<String, dynamic> json) =>
-      _$BluetoothDeviceFromJson(json);
+  factory BluetoothDevice.fromJson(Map<String, dynamic> json) => _$BluetoothDeviceFromJson(json);
 
   @override
   operator ==(Object other) {
