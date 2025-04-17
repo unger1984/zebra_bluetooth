@@ -132,6 +132,7 @@ public class ZebraBluetoothPlugin implements FlutterPlugin, MethodChannel.Method
         }
 
         final Map<String, Object> arguments = call.arguments();
+  
 
         switch (call.method) {
 
@@ -244,11 +245,6 @@ public class ZebraBluetoothPlugin implements FlutterPlugin, MethodChannel.Method
     }
 
     private void getBondedDevices(Result result) {
-        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_COARSE_LOCATION_PERMISSIONS);
-            pendingResult = result;
-            return;
-        }
 
         List<Map<String, Object>> list = new ArrayList<>();
 

@@ -1,25 +1,24 @@
 name: zebra_bluetooth
 description: Zebra Bluetooth printer plugin
-version: 0.1.0
+version: 0.2.0
 homepage:
 
 environment:
-  sdk: ">=2.15.0 <3.0.0"
-  flutter: ">=2.8.0"
+  sdk: ">=3.6.1 <4.0.0"
+  flutter: ">=3.27.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  freezed_annotation: ^2.0.3
+  freezed_annotation: ^3.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner:
-  dart_code_metrics: ^4.15.0
-  flutter_lints: ^1.0.4
-  freezed: ^2.0.3
-  json_serializable: ^6.2.0
+  flutter_lints: ^5.0.0
+  freezed: ^3.0.6
+  json_serializable: ^6.9.4
 
 flutter:
   plugin:

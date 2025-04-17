@@ -7,3 +7,7 @@
 build/
 *.iml
 .idea/
+.vscode/
+
+# FVM Version Cache
+.fvm/

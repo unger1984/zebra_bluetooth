@@ -22,11 +22,7 @@ BluetoothDevice _$BluetoothDeviceFromJson(Map<String, dynamic> json) {
 class _$BluetoothDeviceTearOff {
   const _$BluetoothDeviceTearOff();
 
-  _BluetoothDevice call(
-      {String name = '',
-      String address = '',
-      int type = 0,
-      dynamic connected = false}) {
+  _BluetoothDevice call({String name = '', String address = '', int type = 0, dynamic connected = false}) {
     return _BluetoothDevice(
       name: name,
       address: address,
@@ -52,21 +48,18 @@ mixin _$BluetoothDevice {
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $BluetoothDeviceCopyWith<BluetoothDevice> get copyWith =>
-      throw _privateConstructorUsedError;
+  $BluetoothDeviceCopyWith<BluetoothDevice> get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
 abstract class $BluetoothDeviceCopyWith<$Res> {
-  factory $BluetoothDeviceCopyWith(
-          BluetoothDevice value, $Res Function(BluetoothDevice) then) =
+  factory $BluetoothDeviceCopyWith(BluetoothDevice value, $Res Function(BluetoothDevice) then) =
       _$BluetoothDeviceCopyWithImpl<$Res>;
   $Res call({String name, String address, int type, dynamic connected});
 }
 
 /// @nodoc
-class _$BluetoothDeviceCopyWithImpl<$Res>
-    implements $BluetoothDeviceCopyWith<$Res> {
+class _$BluetoothDeviceCopyWithImpl<$Res> implements $BluetoothDeviceCopyWith<$Res> {
   _$BluetoothDeviceCopyWithImpl(this._value, this._then);
 
   final BluetoothDevice _value;
@@ -102,21 +95,17 @@ class _$BluetoothDeviceCopyWithImpl<$Res>
 }
 
 /// @nodoc
-abstract class _$BluetoothDeviceCopyWith<$Res>
-    implements $BluetoothDeviceCopyWith<$Res> {
-  factory _$BluetoothDeviceCopyWith(
-          _BluetoothDevice value, $Res Function(_BluetoothDevice) then) =
+abstract class _$BluetoothDeviceCopyWith<$Res> implements $BluetoothDeviceCopyWith<$Res> {
+  factory _$BluetoothDeviceCopyWith(_BluetoothDevice value, $Res Function(_BluetoothDevice) then) =
       __$BluetoothDeviceCopyWithImpl<$Res>;
   @override
   $Res call({String name, String address, int type, dynamic connected});
 }
 
 /// @nodoc
-class __$BluetoothDeviceCopyWithImpl<$Res>
-    extends _$BluetoothDeviceCopyWithImpl<$Res>
+class __$BluetoothDeviceCopyWithImpl<$Res> extends _$BluetoothDeviceCopyWithImpl<$Res>
     implements _$BluetoothDeviceCopyWith<$Res> {
-  __$BluetoothDeviceCopyWithImpl(
-      _BluetoothDevice _value, $Res Function(_BluetoothDevice) _then)
+  __$BluetoothDeviceCopyWithImpl(_BluetoothDevice _value, $Res Function(_BluetoothDevice) _then)
       : super(_value, (v) => _then(v as _BluetoothDevice));
 
   @override
@@ -150,14 +139,9 @@ class __$BluetoothDeviceCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$_BluetoothDevice implements _BluetoothDevice {
-  const _$_BluetoothDevice(
-      {this.name = '',
-      this.address = '',
-      this.type = 0,
-      this.connected = false});
+  const _$_BluetoothDevice({this.name = '', this.address = '', this.type = 0, this.connected = false});
 
-  factory _$_BluetoothDevice.fromJson(Map<String, dynamic> json) =>
-      _$$_BluetoothDeviceFromJson(json);
+  factory _$_BluetoothDevice.fromJson(Map<String, dynamic> json) => _$$_BluetoothDeviceFromJson(json);
 
   @JsonKey()
   @override
@@ -189,14 +173,9 @@ class _$_BluetoothDevice implements _BluetoothDevice {
 }
 
 abstract class _BluetoothDevice implements BluetoothDevice {
-  const factory _BluetoothDevice(
-      {String name,
-      String address,
-      int type,
-      dynamic connected}) = _$_BluetoothDevice;
+  const factory _BluetoothDevice({String name, String address, int type, dynamic connected}) = _$_BluetoothDevice;
 
-  factory _BluetoothDevice.fromJson(Map<String, dynamic> json) =
-      _$_BluetoothDevice.fromJson;
+  factory _BluetoothDevice.fromJson(Map<String, dynamic> json) = _$_BluetoothDevice.fromJson;
 
   @override
   String get name;
@@ -208,6 +187,5 @@ abstract class _BluetoothDevice implements BluetoothDevice {
   dynamic get connected;
   @override
   @JsonKey(ignore: true)
-  _$BluetoothDeviceCopyWith<_BluetoothDevice> get copyWith =>
-      throw _privateConstructorUsedError;
+  _$BluetoothDeviceCopyWith<_BluetoothDevice> get copyWith => throw _privateConstructorUsedError;
 }

@@ -15,6 +15,7 @@ class BluetoothDevice with _$BluetoothDevice {
   factory BluetoothDevice.fromJson(Map<String, dynamic> json) => _$BluetoothDeviceFromJson(json);
 
   @override
+  // ignore: hash_and_equals
   operator ==(Object other) {
     return other is BluetoothDevice && other.address == address;
   }
