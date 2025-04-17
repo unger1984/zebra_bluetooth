@@ -1,5 +1,7 @@
 package com.awcoding.zebra_bluetooth;
 
+import android.app.Activity;
+
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -10,15 +12,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-
-import android.util.Log;
-import android.os.AsyncTask;
-import android.os.Handler;
-import android.os.Looper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,17 +34,17 @@ import java.util.Map;
 import java.util.UUID;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
+import io.flutter.embedding.engine.plugins.activity.ActivityAware;
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 import io.flutter.plugin.common.EventChannel;
-import io.flutter.plugin.common.EventChannel.StreamHandler;
-import io.flutter.plugin.common.EventChannel.EventSink;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.Result;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
-import io.flutter.plugin.common.PluginRegistry.RequestPermissionsResultListener;
+import io.flutter.plugin.common.PluginRegistry;
+import io.flutter.plugin.common.EventChannel.StreamHandler;
+import io.flutter.plugin.common.EventChannel.EventSink;
 
-
-public class ZebraBluetoothPlugin implements FlutterPlugin, MethodChannel.MethodCallHandler, RequestPermissionsResultListener {
+public class ZebraBluetoothPlugin implements FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware {
 
     private static final String TAG = "ZebraBluetoothPlugin";
     private static final String NAMESPACE = "zebra_bluetooth";
@@ -57,10 +59,7 @@ public class ZebraBluetoothPlugin implements FlutterPlugin, MethodChannel.Method
     private EventSink readSink;
     private EventSink statusSink;
 
-//    public static void registerWith(Registrar registrar) {
-//        final ZebraBluetoothPlugin instance = new ZebraBluetoothPlugin(registrar);
-//        registrar.addRequestPermissionsResultListener(instance);
-//    }
+    private Activity activity;
 
     // MethodChannel.Result wrapper that responds on the platform thread.
     private static class MethodResultWrapper implements Result {
@@ -160,19 +159,7 @@ public class ZebraBluetoothPlugin implements FlutterPlugin, MethodChannel.Method
 
             case "getBondedDevices":
                 try {
-
-//                    if (ContextCompat.checkSelfPermission(bindingPlugin.getApplicationContext(),
-//                            Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//
-//                        ActivityCompat.requestPermissions(bindingPlugin,
-//                                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_COARSE_LOCATION_PERMISSIONS);
-//
-//                        pendingResult = result;
-//                        break;
-//                    }
-
                     getBondedDevices(result);
-
                 } catch (Exception ex) {
                     result.error("Error", ex.getMessage(), exceptionToString(ex));
                 }
@@ -216,20 +203,39 @@ public class ZebraBluetoothPlugin implements FlutterPlugin, MethodChannel.Method
         }
     }
 
+    @Override
+    public void onAttachedToActivity(@NonNull ActivityPluginBinding binding) {
+        this.activity = binding.getActivity();
+    }
+
+    @Override
+    public void onDetachedFromActivityForConfigChanges() {
+        this.activity = null;
+    }
+
+    @Override
+    public void onReattachedToActivityForConfigChanges(@NonNull ActivityPluginBinding binding) {
+        this.activity = binding.getActivity();
+    }
+
+    @Override
+    public void onDetachedFromActivity() {
+        this.activity = null;
+    }
+
     /**
      * @param requestCode  requestCode
      * @param permissions  permissions
      * @param grantResults grantResults
      * @return boolean
      */
-    @Override
-    public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public boolean onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
         if (requestCode == REQUEST_COARSE_LOCATION_PERMISSIONS) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 getBondedDevices(pendingResult);
             } else {
-                pendingResult.error("no_permissions", "this plugin requires location permissions for scanning", null);
+                pendingResult.error("no_permissions", "This plugin requires location permissions for scanning", null);
                 pendingResult = null;
             }
             return true;
@@ -237,10 +243,12 @@ public class ZebraBluetoothPlugin implements FlutterPlugin, MethodChannel.Method
         return false;
     }
 
-    /**
-     * @param result result
-     */
     private void getBondedDevices(Result result) {
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_COARSE_LOCATION_PERMISSIONS);
+            pendingResult = result;
+            return;
+        }
 
         List<Map<String, Object>> list = new ArrayList<>();
 
@@ -262,12 +270,7 @@ public class ZebraBluetoothPlugin implements FlutterPlugin, MethodChannel.Method
         return sw.toString();
     }
 
-    /**
-     * @param result  result
-     * @param address address
-     */
     private void connect(Result result, String address) {
-
         if (THREAD != null) {
             result.error("connect_error", "already connected", null);
             return;
@@ -288,7 +291,6 @@ public class ZebraBluetoothPlugin implements FlutterPlugin, MethodChannel.Method
                     return;
                 }
 
-                // Cancel bt discovery, even though we didn't start it
                 mBluetoothAdapter.cancelDiscovery();
 
                 try {
@@ -307,11 +309,7 @@ public class ZebraBluetoothPlugin implements FlutterPlugin, MethodChannel.Method
         });
     }
 
-    /**
-     * @param result result
-     */
     private void disconnect(Result result) {
-
         if (THREAD == null) {
             result.error("disconnection_error", "not connected", null);
             return;
@@ -322,29 +320,18 @@ public class ZebraBluetoothPlugin implements FlutterPlugin, MethodChannel.Method
                 THREAD = null;
                 result.success(true);
             } catch (Exception ex) {
-                Log.e(TAG, ex.getMessage(), ex);
                 result.error("disconnection_error", ex.getMessage(), exceptionToString(ex));
             }
         });
     }
 
-    /**
-     * @param result  result
-     * @param message message
-     */
     private void write(Result result, String message) {
         if (THREAD == null) {
             result.error("write_error", "not connected", null);
             return;
         }
-
-        try {
-            THREAD.write(message.getBytes());
-            result.success(true);
-        } catch (Exception ex) {
-            Log.e(TAG, ex.getMessage(), ex);
-            result.error("write_error", ex.getMessage(), exceptionToString(ex));
-        }
+        THREAD.write(message.getBytes());
+        result.success(true);
     }
 
     private void writeBytes(Result result, byte[] message) {
@@ -352,34 +339,52 @@ public class ZebraBluetoothPlugin implements FlutterPlugin, MethodChannel.Method
             result.error("write_error", "not connected", null);
             return;
         }
-
-        try {
-            THREAD.write(message);
-            result.success(true);
-        } catch (Exception ex) {
-            Log.e(TAG, ex.getMessage(), ex);
-            result.error("write_error", ex.getMessage(), exceptionToString(ex));
-        }
+        THREAD.write(message);
+        result.success(true);
     }
+
+    private StreamHandler stateStreamHandler = new StreamHandler() {
+        @Override
+        public void onListen(Object arguments, EventSink events) {
+            statusSink = events;
+        }
+
+        @Override
+        public void onCancel(Object arguments) {
+            statusSink = null;
+        }
+    };
+
+    private StreamHandler readResultsHandler = new StreamHandler() {
+        @Override
+        public void onListen(Object arguments, EventSink events) {
+            readSink = events;
+        }
+
+        @Override
+        public void onCancel(Object arguments) {
+            readSink = null;
+        }
+    };
 
     private class ConnectedThread extends Thread {
         private final BluetoothSocket mmSocket;
-        private final InputStream inputStream;
-        private final OutputStream outputStream;
+        private final InputStream mmInStream;
+        private final OutputStream mmOutStream;
 
         ConnectedThread(BluetoothSocket socket) {
             mmSocket = socket;
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
-
             try {
-                tmpIn = socket.getInputStream();
-                tmpOut = socket.getOutputStream();
+                tmpIn = mmSocket.getInputStream();
+                tmpOut = mmSocket.getOutputStream();
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Error", e);
             }
-            inputStream = tmpIn;
-            outputStream = tmpOut;
+
+            mmInStream = tmpIn;
+            mmOutStream = tmpOut;
         }
 
         public void run() {
@@ -387,10 +392,10 @@ public class ZebraBluetoothPlugin implements FlutterPlugin, MethodChannel.Method
             int bytes;
             while (true) {
                 try {
-                    bytes = inputStream.read(buffer);
-                    readSink.success(new String(buffer, 0, bytes));
-                } catch (NullPointerException e) {
-                    break;
+                    bytes = mmInStream.read(buffer);
+                    if (readSink != null) {
+                        readSink.success(buffer);
+                    }
                 } catch (IOException e) {
                     break;
                 }
@@ -399,73 +404,18 @@ public class ZebraBluetoothPlugin implements FlutterPlugin, MethodChannel.Method
 
         public void write(byte[] bytes) {
             try {
-                outputStream.write(bytes);
+                mmOutStream.write(bytes);
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Error writing to output stream", e);
             }
         }
 
         public void cancel() {
             try {
-                outputStream.flush();
-                outputStream.close();
-
-                inputStream.close();
-
                 mmSocket.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Error closing socket", e);
             }
         }
     }
-
-    private final StreamHandler stateStreamHandler = new StreamHandler() {
-
-        private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                final String action = intent.getAction();
-
-                Log.d(TAG, action);
-
-                if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
-                    THREAD = null;
-                    statusSink.success(intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1));
-                } else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
-                    statusSink.success(1);
-                } else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
-                    THREAD = null;
-                    statusSink.success(0);
-                }
-            }
-        };
-
-        @Override
-        public void onListen(Object o, EventSink eventSink) {
-            statusSink = eventSink;
-            bindingPlugin.getApplicationContext().registerReceiver(mReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
-
-            bindingPlugin.getApplicationContext().registerReceiver(mReceiver, new IntentFilter(BluetoothDevice.ACTION_ACL_CONNECTED));
-
-            bindingPlugin.getApplicationContext().registerReceiver(mReceiver, new IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED));
-        }
-
-        @Override
-        public void onCancel(Object o) {
-            statusSink = null;
-            bindingPlugin.getApplicationContext().unregisterReceiver(mReceiver);
-        }
-    };
-
-    private final StreamHandler readResultsHandler = new StreamHandler() {
-        @Override
-        public void onListen(Object o, EventSink eventSink) {
-            readSink = eventSink;
-        }
-
-        @Override
-        public void onCancel(Object o) {
-            readSink = null;
-        }
-    };
 }
