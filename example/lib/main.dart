@@ -8,8 +8,10 @@ void main() {
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
-  _MyAppState createState() => _MyAppState();
+  State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
@@ -63,6 +65,7 @@ class _MyAppState extends State<MyApp> {
                   itemCount: snapshot.data?.length ?? 0,
                   itemBuilder: (context, index) {
                     return TextButton(
+                      // ignore: avoid_print
                       onPressed: () => print(snapshot.data?[index]),
                       child: Text(snapshot.data?[index].name ?? 'unknown'),
                     );
